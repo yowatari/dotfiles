@@ -14,7 +14,12 @@ path=(~/bin(N-/) $path)
 path=(~/.local/bin(N-/) $path)
 fpath=(~/.zsh/completions(N-/) $fpath)
 
-export GPG_TTY=$(tty)
+# Defer `tty` subprocess until gpg is actually invoked
+gpg() {
+  export GPG_TTY="${GPG_TTY:-$(tty)}"
+  unfunction gpg
+  command gpg "$@"
+}
 export EDITOR=hx
 
 source $HOME/.zsh/base.rc.zsh
