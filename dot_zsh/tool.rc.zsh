@@ -76,3 +76,6 @@ fi
 if [[ -n $HOMEBREW_PREFIX && -d "$HOMEBREW_PREFIX/opt/mysql-client/bin" ]]; then
   export PATH="$HOMEBREW_PREFIX/opt/mysql-client/bin:$PATH"
 fi
+if [[ -n $HOMEBREW_PREFIX && -d "$HOMEBREW_PREFIX/opt/curl/bin" ]]; then
+  export PATH="$HOMEBREW_PREFIX/opt/curl/bin:$PATH"
+fi
