@@ -1,4 +1,10 @@
-eval $(/opt/homebrew/bin/brew shellenv)
+# Cache `brew shellenv` output to avoid forking on every shell startup
+_brew_env_cache="${XDG_CACHE_HOME:-$HOME/.cache}/brew_shellenv.zsh"
+if [[ ! -s $_brew_env_cache || /opt/homebrew/bin/brew -nt $_brew_env_cache ]]; then
+  /opt/homebrew/bin/brew shellenv > $_brew_env_cache
+fi
+source $_brew_env_cache
+unset _brew_env_cache
 
 export HOMEBREW_NO_ANALYTICS=1
 

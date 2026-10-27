@@ -3,6 +3,13 @@ stty stop undef
 stty start undef
 
 # completion
+# Run full compinit at most once per day; otherwise use cached dump (-C)
+autoload -Uz compinit
+if [[ -n ${ZDOTDIR:-$HOME}/.zcompdump(#qN.mh+24) ]]; then
+  compinit
+else
+  compinit -C
+fi
 setopt list_types
 setopt auto_resume
 setopt auto_list
