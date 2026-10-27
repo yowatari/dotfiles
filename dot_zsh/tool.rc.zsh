@@ -42,29 +42,37 @@ export LIME_GIT_COLOR=109
 
 if command -v mise &>/dev/null; then
     eval "$($HOME/.local/bin/mise activate zsh)"
-    eval "$($HOME/.local/bin/mise activate --shims)"
 fi
 
 if [[ -f $HOME/.local/share/mise/installs/gcloud/latest/completion.zsh.inc ]]; then
   source "$HOME/.local/share/mise/installs/gcloud/latest/completion.zsh.inc"
 fi
 
+# Cache directory for generated completion scripts
+typeset -g _ZSH_COMPLETION_CACHE="${XDG_CACHE_HOME:-$HOME/.cache}/zsh"
+[[ -d $_ZSH_COMPLETION_CACHE ]] || mkdir -p $_ZSH_COMPLETION_CACHE
+
 if command -v aws-vault &>/dev/null; then
   if command -v pass &>/dev/null; then
     export AWS_VAULT_BACKEND=pass
     export AWS_VAULT_PASS_PREFIX=aws-vault
   fi
-  eval "$(aws-vault --completion-script-zsh)"
+  local _av_cache="$_ZSH_COMPLETION_CACHE/aws-vault.zsh"
+  if [[ ! -s $_av_cache || $(command -v aws-vault) -nt $_av_cache ]]; then
+    aws-vault --completion-script-zsh > $_av_cache
+  fi
+  source $_av_cache
 fi
 
 if command -v pack &>/dev/null; then
-  source "$(pack completion --shell zsh)"
+  local _pack_cache="$_ZSH_COMPLETION_CACHE/pack.zsh"
+  if [[ ! -s $_pack_cache || $(command -v pack) -nt $_pack_cache ]]; then
+    cp "$(pack completion --shell zsh)" $_pack_cache
+  fi
+  source $_pack_cache
 fi
 
-# homebrew packages
-if command -v brew &>/dev/null; then
-  local brew_prefix="$(brew --prefix)"
-  if [[ -d "$brew_prefix/opt/mysql-client/bin" ]]; then
-    export PATH="$brew_prefix/opt/mysql-client/bin:$PATH"
-  fi
+# homebrew packages (use $HOMEBREW_PREFIX from cached brew shellenv)
+if [[ -n $HOMEBREW_PREFIX && -d "$HOMEBREW_PREFIX/opt/mysql-client/bin" ]]; then
+  export PATH="$HOMEBREW_PREFIX/opt/mysql-client/bin:$PATH"
 fi
